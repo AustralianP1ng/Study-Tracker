@@ -1,5 +1,16 @@
-const CACHE="study-tracker-sync-v1";
+const CACHE="study-tracker-sync-v2";
 const ASSETS=["./","./index.html","./manifest.webmanifest","./config.js","./icon-192.png","./icon-512.png"];
 self.addEventListener("install",e=>e.waitUntil(caches.open(CACHE).then(c=>c.addAll(ASSETS)).then(()=>self.skipWaiting())));
 self.addEventListener("activate",e=>e.waitUntil(self.clients.claim()));
 self.addEventListener("fetch",e=>e.respondWith(caches.match(e.request).then(r=>r||fetch(e.request).then(res=>{const copy=res.clone();caches.open(CACHE).then(c=>c.put(e.request,copy));return res}).catch(()=>caches.match("./index.html")))));
+
+
+// Force the new service worker to activate immediately instead of waiting
+self.addEventListener('install', (event) => {
+  self.skipWaiting();
+});
+
+// Take control of all pages/tabs right away
+self.addEventListener('activate', (event) => {
+  event.waitUntil(clients.claim());
+});
