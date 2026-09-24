@@ -88,7 +88,20 @@ $("logout").onclick=()=>sb.auth.signOut();
 sb.auth.onAuthStateChange(async(_event,session)=>{user=session?.user||null;if(user){$("auth").classList.remove("show");$("app").classList.remove("hide");await load()}else{$("app").classList.add("hide");$("auth").classList.add("show")}});
 const savedTheme=localStorage.getItem("study-theme");if(savedTheme==="dark"){document.documentElement.dataset.theme="dark";$("theme").textContent="☀"}
 function renderAll(){renderOverview();renderCalendar();renderSelected();renderRecent();drawChart()}
-if("serviceWorker" in navigator)window.addEventListener("load",()=>navigator.serviceWorker.register("sw.js"));
+if ("serviceWorker" in navigator) {
+  window.addEventListener("load", () => {
+    navigator.serviceWorker.register("sw.js", { updateViaCache: "none" })
+      .then((registration) => {
+        registration.update();
+      });
+  });
+}
+
+document.addEventListener("visibilitychange", () => {
+  if (document.visibilityState === "visible") {
+    if (typeof renderAll === "function") renderAll();
+  }
+});
 </script>
 </body>
 </html>
