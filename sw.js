@@ -1,16 +1,44 @@
-const CACHE="study-tracker-sync-v2";
-const ASSETS=["./","./index.html","./manifest.webmanifest","./config.js","./icon-192.png","./icon-512.png"];
-self.addEventListener("install",e=>e.waitUntil(caches.open(CACHE).then(c=>c.addAll(ASSETS)).then(()=>self.skipWaiting())));
-self.addEventListener("activate",e=>e.waitUntil(self.clients.claim()));
-self.addEventListener("fetch",e=>e.respondWith(caches.match(e.request).then(r=>r||fetch(e.request).then(res=>{const copy=res.clone();caches.open(CACHE).then(c=>c.put(e.request,copy));return res}).catch(()=>caches.match("./index.html")))));
+const CACHE_NAME = 'study-tracker-v3';
 
-
-// Force the new service worker to activate immediately instead of waiting
+// Force new service worker to activate immediately
 self.addEventListener('install', (event) => {
   self.skipWaiting();
 });
 
-// Take control of all pages/tabs right away
 self.addEventListener('activate', (event) => {
   event.waitUntil(clients.claim());
+});
+
+// Intercept fetch requests and ignore extension/Supabase requests
+self.addEventListener('fetch', (event) => {
+  // 1. Ignore non-HTTP(S) schemes like chrome-extension://
+  if (!event.request.url.startsWith('http')) {
+    return;
+  }
+
+  // 2. Ignore Supabase API requests so data isn't cached stale
+  if (event.request.url.includes('supabase.co')) {
+    return;
+  }
+
+  // 3. Handle standard caching for local app assets
+  event.respondWith(
+    caches.match(event.request).then((cachedResponse) => {
+      if (cachedResponse) {
+        return cachedResponse;
+      }
+      return fetch(event.request).then((networkResponse) => {
+        if (!networkResponse || networkResponse.status !== 200 || networkResponse.type !== 'basic') {
+          return networkResponse;
+        }
+
+        const responseToCache = networkResponse.clone();
+        caches.open(CACHE_NAME).then((cache) => {
+          cache.put(event.request, responseToCache);
+        });
+
+        return networkResponse;
+      });
+    })
+  );
 });
