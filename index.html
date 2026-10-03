@@ -19,9 +19,9 @@ button,input{font:inherit}.app{max-width:1050px;margin:auto;padding:22px 18px 50
 .card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:18px;box-shadow:var(--shadow)}
 .timer{text-align:center;font-size:clamp(54px,11vw,92px);font-weight:750;letter-spacing:-3px;font-variant-numeric:tabular-nums;margin:16px 0 20px}
 .row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}.grow{flex:1}.input{width:100%;min-height:46px;border:1px solid var(--line);background:var(--card);color:var(--text);border-radius:12px;padding:10px 12px;outline:none}.input:focus{border-color:var(--accent)}
-.primary,.secondary,.danger{min-height:46px;border-radius:12px;padding:0 17px;border:0;font-weight:650}.primary{background:var(--accent);color:white}.secondary{background:var(--accent2);color:var(--text)}.danger{background:#ffe9ec;color:var(--danger)}
-.stat{font-size:28px;font-weight:750}.small{font-size:13px}.tabs{display:flex;gap:8px;margin-bottom:14px;overflow:auto}.tab{white-space:nowrap;border:1px solid var(--line);background:var(--card);color:var(--muted);padding:9px 13px;border-radius:10px}.tab.active{background:var(--accent2);color:var(--text);border-color:transparent}
-canvas{width:100%;height:230px;display:block}.calendar-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}.calgrid{display:grid;grid-template-columns:repeat(7,1fr);gap:5px}.dow{text-align:center;color:var(--muted);font-size:11px;padding:5px}.day{min-height:52px;border:1px solid transparent;border-radius:10px;background:transparent;color:var(--text);padding:5px;text-align:left;position:relative}.day:hover{background:var(--accent2)}.day.selected{border-color:var(--accent);background:var(--accent2)}.day.mutedday{color:var(--muted)}.dot{position:absolute;right:6px;bottom:6px;width:7px;height:7px;border-radius:50%;background:var(--accent)}
+.primary,.secondary,.danger{min-height:46px;border-radius:12px;padding:0 17px;border:0;font-weight:650;cursor:pointer}.primary{background:var(--accent);color:white}.secondary{background:var(--accent2);color:var(--text)}.danger{background:#ffe9ec;color:var(--danger)}
+.stat{font-size:28px;font-weight:750}.small{font-size:13px}.tabs{display:flex;gap:8px;margin-bottom:14px;overflow:auto}.tab{white-space:nowrap;border:1px solid var(--line);background:var(--card);color:var(--muted);padding:9px 13px;border-radius:10px;cursor:pointer}.tab.active{background:var(--accent2);color:var(--text);border-color:transparent}
+canvas{width:100%;height:230px;display:block}.calendar-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}.calgrid{display:grid;grid-template-columns:repeat(7,1fr);gap:5px}.dow{text-align:center;color:var(--muted);font-size:11px;padding:5px}.day{min-height:52px;border:1px solid transparent;border-radius:10px;background:transparent;color:var(--text);padding:5px;text-align:left;position:relative;cursor:pointer}.day:hover{background:var(--accent2)}.day.selected{border-color:var(--accent);background:var(--accent2)}.day.mutedday{color:var(--muted)}.dot{position:absolute;right:6px;bottom:6px;width:7px;height:7px;border-radius:50%;background:var(--accent)}
 .session{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--line)}.pill{font-size:12px;padding:4px 8px;border-radius:999px;background:var(--accent2)}.empty{padding:18px 0;text-align:center;color:var(--muted)}
 .delbtn{background:none;border:none;color:var(--danger);cursor:pointer;padding:4px 8px;font-size:16px;line-height:1;border-radius:6px}.delbtn:hover{background:#ffe9ec}
 .auth{display:none}.auth.show{display:block}.app.hide{display:none}
@@ -44,7 +44,12 @@ canvas{width:100%;height:230px;display:block}.calendar-head{display:flex;justify
 <div id="app" class="app hide">
 <header><div><h1>Study Tracker</h1><div class="muted small"><span id="syncStatus">Connecting…</span></div></div><div class="row"><button id="logout" class="secondary small">Sign out</button><button id="theme" class="iconbtn" aria-label="Toggle dark mode">☾</button></div></header>
 <div class="grid two">
-<section class="card"><h2>Study timer</h2><input id="topic" class="input" placeholder="Session name / topic (e.g. Integration practice)">
+<section class="card">
+<div class="row" style="justify-content:space-between;align-items:center;margin-bottom:12px;">
+  <h2 style="margin:0;">Study timer</h2>
+  <button id="openManualBtn" class="secondary small">+ Log past session</button>
+</div>
+<input id="topic" class="input" placeholder="Session name / topic (e.g. Integration practice)">
 <div class="timer" id="timer">00:00:00</div><div class="row"><button id="start" class="primary grow">Start</button><button id="pause" class="secondary grow" disabled>Pause</button><button id="finish" class="secondary grow" disabled>Finish</button></div>
 <p id="timerStatus" class="muted small" style="text-align:center;margin:12px 0 0">Ready when you are.</p></section>
 <section class="card"><h2>Overview</h2><div class="grid three"><div><div class="muted small">Today</div><div class="stat" id="todayStat">0m</div></div><div><div class="muted small">This week</div><div class="stat" id="weekStat">0m</div></div><div><div class="muted small">Streak</div><div class="stat" id="streakStat">0d</div></div></div><hr style="border:0;border-top:1px solid var(--line);margin:18px 0"><div class="muted small">All-time study time</div><div class="stat" id="allStat">0h</div></section>
@@ -53,6 +58,34 @@ canvas{width:100%;height:230px;display:block}.calendar-head{display:flex;justify
 <section class="grid two" style="margin-top:16px"><section class="card"><div class="calendar-head"><button class="iconbtn" id="prevMonth">‹</button><strong id="monthTitle"></strong><button class="iconbtn" id="nextMonth">›</button></div><div class="calgrid" id="calendar"></div></section>
 <section class="card"><h2 id="selectedTitle">Selected date</h2><div class="grid three" style="margin-bottom:10px"><div><div class="muted small">Time</div><strong id="selectedTime">0m</strong></div><div><div class="muted small">Sessions</div><strong id="selectedSessions">0</strong></div><div><div class="muted small">Topics</div><strong id="selectedTopics">0</strong></div></div><div id="selectedList"></div></section></section>
 <section class="card" style="margin-top:16px"><h2>Recent sessions</h2><div id="recent"></div></section>
+</div>
+
+<!-- Manual Log Modal -->
+<div id="manualModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);align-items:center;justify-content:center;z-index:100;padding:16px;">
+  <div class="card" style="width:100%;max-width:400px;">
+    <h2>Log past session</h2>
+    <input id="manualTopic" class="input" placeholder="Topic / Subject" style="margin-bottom:10px">
+    
+    <label class="muted small" style="display:block;margin-bottom:4px;">Date studied</label>
+    <input id="manualDate" class="input" type="date" style="margin-bottom:10px">
+    
+    <div class="row" style="margin-bottom:14px;">
+      <div class="grow">
+        <label class="muted small" style="display:block;margin-bottom:4px;">Hours</label>
+        <input id="manualHours" class="input" type="number" min="0" value="0">
+      </div>
+      <div class="grow">
+        <label class="muted small" style="display:block;margin-bottom:4px;">Minutes</label>
+        <input id="manualMins" class="input" type="number" min="0" max="59" value="30">
+      </div>
+    </div>
+
+    <div class="row">
+      <button id="saveManualBtn" class="primary grow">Save session</button>
+      <button id="closeManualBtn" class="secondary">Cancel</button>
+    </div>
+    <p id="manualMsg" class="muted small" style="margin-top:10px;text-align:center;"></p>
+  </div>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -82,22 +115,58 @@ $("prevMonth").onclick=()=>{viewDate.setMonth(viewDate.getMonth()-1);renderCalen
 document.querySelectorAll(".tab").forEach(b=>b.onclick=()=>{document.querySelectorAll(".tab").forEach(x=>x.classList.remove("active"));b.classList.add("active");graphRange=b.dataset.range;drawChart()});
 $("theme").onclick=()=>{let dark=document.documentElement.dataset.theme!=="dark";document.documentElement.dataset.theme=dark?"dark":"light";$("theme").textContent=dark?"☀":"☾";localStorage.setItem("study-theme",dark?"dark":"light");drawChart()};
 window.addEventListener("resize",drawChart);
-$("authBtn").onclick=async()=>{let email=$("email").value.trim(),password=$("password").value;if(!email\vert{}\vert{}!password){$("authMsg").textContent="Enter an email and password.";return}$("authMsg").textContent="Working…";let res=authMode==="login"?await sb.auth.signInWithPassword({email,password}):await sb.auth.signUp({email,password});if(res.error){$("authMsg").textContent=res.error.message}else if(authMode==="signup")$("authMsg").textContent="Account created. Check your email if confirmation is enabled."};
+$("authBtn").onclick=async()=>{let email=$("email").value.trim(),password=$("password").value;if(!email||!password){$("authMsg").textContent="Enter an email and password.";return}$("authMsg").textContent="Working…";let res=authMode==="login"?await sb.auth.signInWithPassword({email,password}):await sb.auth.signUp({email,password});if(res.error){$("authMsg").textContent=res.error.message}else if(authMode==="signup")$("authMsg").textContent="Account created. Check your email if confirmation is enabled."};
 $("switchAuth").onclick=()=>{authMode=authMode==="login"?"signup":"login";$("authTitle").textContent=authMode==="login"?"Sign in":"Create account";$("authBtn").textContent=authMode==="login"?"Sign in":"Create account";$("switchAuth").textContent=authMode==="login"?"Create account":"Back to sign in";$("authMsg").textContent=""};
 $("logout").onclick=()=>sb.auth.signOut();
 sb.auth.onAuthStateChange(async(_event,session)=>{user=session?.user||null;if(user){$("auth").classList.remove("show");$("app").classList.remove("hide");await load()}else{$("app").classList.add("hide");$("auth").classList.add("show")}});
 const savedTheme=localStorage.getItem("study-theme");if(savedTheme==="dark"){document.documentElement.dataset.theme="dark";$("theme").textContent="☀"}
 function renderAll(){renderOverview();renderCalendar();renderSelected();renderRecent();drawChart()}
 
+// Manual Session Modal Logic
+const manualModal = $("manualModal");
+$("openManualBtn").onclick = () => {
+  $("manualDate").value = iso(new Date());
+  $("manualTopic").value = "";
+  $("manualHours").value = 0;
+  $("manualMins").value = 30;
+  $("manualMsg").textContent = "";
+  manualModal.style.display = "flex";
+};
+$("closeManualBtn").onclick = () => { manualModal.style.display = "none"; };
+$("saveManualBtn").onclick = async () => {
+  const topic = $("manualTopic").value.trim() || "Untitled session";
+  const dateStr = $("manualDate").value;
+  const hours = parseInt($("manualHours").value) || 0;
+  const mins = parseInt($("manualMins").value) || 0;
+  const totalSeconds = (hours * 3600) + (mins * 60);
+
+  if (!dateStr) { $("manualMsg").textContent = "Please pick a valid date."; return; }
+  if (totalSeconds <= 0) { $("manualMsg").textContent = "Please enter a valid duration."; return; }
+
+  $("manualMsg").textContent = "Saving…";
+  const startedAt = new Date(`${dateStr}T12:00:00`).toISOString();
+
+  const { error } = await sb.from("study_sessions").insert({
+    user_id: user.id,
+    topic: topic,
+    started_at: startedAt,
+    study_date: dateStr,
+    duration_seconds: totalSeconds
+  });
+
+  if (error) {
+    $("manualMsg").textContent = "Error: " + error.message;
+  } else {
+    manualModal.style.display = "none";
+    await load();
+  }
+};
+
 // Function to delete a single session by ID
 async function deleteSession(sessionId) {
   if (!confirm("Are you sure you want to delete this study session?")) return;
   try {
-    const { error } = await sb
-      .from('study_sessions')
-      .delete()
-      .eq('id', sessionId);
-
+    const { error } = await sb.from('study_sessions').delete().eq('id', sessionId);
     if (error) throw error;
     await load();
   } catch (err) {
@@ -109,9 +178,7 @@ async function deleteSession(sessionId) {
 if ("serviceWorker" in navigator) {
   window.addEventListener("load", () => {
     navigator.serviceWorker.register("sw.js", { updateViaCache: "none" })
-      .then((registration) => {
-        registration.update();
-      });
+      .then((registration) => { registration.update(); });
   });
 }
 
