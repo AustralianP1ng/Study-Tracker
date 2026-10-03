@@ -1,4 +1,4 @@
-const CACHE_NAME = 'study-tracker-v4';
+const CACHE_NAME = 'study-tracker-v5';
 
 // Force new service worker to activate immediately
 self.addEventListener('install', (event) => {
